@@ -30,7 +30,9 @@ export default function Hero() {
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
+  // Zoom-in as the user scrolls down
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.35]);
 
   useEffect(() => {
     const update = () => setWindowSize({ w: window.innerWidth, h: window.innerHeight });
@@ -75,48 +77,7 @@ export default function Hero() {
         cursor: 'none', // Hide cursor to emphasize the ghost effect
       }}
     >
-      {/* ========== BACKGROUND TEXT — sits behind the photo ========== */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          position: 'absolute',
-          zIndex: 1,
-          textAlign: 'center',
-          pointerEvents: 'none',
-          x: textX,
-          y: textY,
-          opacity: heroOpacity,
-        }}
-      >
-        <div style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(5rem, 15vw, 14rem)',
-          fontWeight: 900,
-          lineHeight: 0.85,
-          letterSpacing: '-0.04em',
-          color: 'transparent',
-          WebkitTextStroke: '1.5px rgba(0,0,0,0.06)',
-          userSelect: 'none',
-        }}>
-          MAZEN
-        </div>
-        <div style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'clamp(5rem, 15vw, 14rem)',
-          fontWeight: 900,
-          lineHeight: 0.85,
-          letterSpacing: '-0.04em',
-          color: 'transparent',
-          WebkitTextStroke: '1.5px rgba(0,0,0,0.06)',
-          userSelect: 'none',
-        }}>
-          ELSAKA
-        </div>
-      </motion.div>
-
-      {/* ========== BASE PHOTO — the main center image ========== */}
+      {/* ========== BASE PHOTO — full screen, zooms in on scroll ========== */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -126,6 +87,7 @@ export default function Hero() {
           inset: 0,
           zIndex: 2,
           opacity: heroOpacity,
+          scale: heroScale,
         }}
       >
         <img
@@ -149,6 +111,7 @@ export default function Hero() {
           WebkitMaskImage: maskImage,
           maskImage: maskImage,
           opacity: heroOpacity,
+          scale: heroScale,
           pointerEvents: 'none',
         }}
       >
@@ -175,90 +138,86 @@ export default function Hero() {
         zIndex={4}
       />
 
-      {/* ========== FOREGROUND TEXT & UI — sits in front ========== */}
-      <div style={{
-        position: 'absolute',
-        zIndex: 5,
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: '2rem 3rem 3rem',
-        background: 'linear-gradient(to top, rgba(252,252,252,0.95) 0%, rgba(252,252,252,0.6) 50%, transparent 100%)',
-        pointerEvents: 'none',
-      }}>
-        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto' }}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{ position: 'relative', display: 'flex', width: 8, height: 8 }}>
-                <span style={{
-                  position: 'absolute', width: '100%', height: '100%', borderRadius: '50%',
-                  background: 'var(--emerald)', opacity: 0.6,
-                  animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-                }} />
-                <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: 'var(--emerald)' }} />
-              </span>
-              <span style={{
-                fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--emerald)',
-                letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600,
-              }}>
-                Available for opportunities
-              </span>
-            </div>
-          </motion.div>
+      {/* ========== NAME — editorial type, bottom-left ========== */}
+      <motion.div
+        style={{
+          position: 'absolute',
+          zIndex: 5,
+          bottom: '3rem',
+          left: 'clamp(1.5rem, 4vw, 4rem)',
+          pointerEvents: 'none',
+          x: textX,
+          y: textY,
+          opacity: heroOpacity,
+        }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}
+        >
+          <span style={{ position: 'relative', display: 'flex', width: 8, height: 8 }}>
+            <span style={{
+              position: 'absolute', width: '100%', height: '100%', borderRadius: '50%',
+              background: 'var(--emerald)', opacity: 0.6,
+              animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite',
+            }} />
+            <span style={{ position: 'relative', width: 8, height: 8, borderRadius: '50%', background: 'var(--emerald)' }} />
+          </span>
+          <span style={{
+            fontFamily: 'var(--font-mono)', fontSize: '0.7rem', color: 'var(--text-secondary)',
+            letterSpacing: '0.25em', textTransform: 'uppercase', fontWeight: 600,
+          }}>
+            Web Developer &middot; AI Engineer
+          </span>
+        </motion.div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
+        <motion.h1
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 'clamp(3.5rem, 9vw, 8.5rem)',
+            fontWeight: 800,
+            lineHeight: 0.92,
+            letterSpacing: '-0.045em',
+            color: 'var(--text-primary)',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}
+        >
+          <span style={{ display: 'block' }}>Mazen</span>
+          <span
+            aria-hidden="true"
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
-              fontWeight: 800,
-              lineHeight: 1.05,
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.03em',
-              marginBottom: '0.5rem',
+              display: 'block',
+              color: 'transparent',
+              WebkitTextStroke: '2px var(--text-primary)',
             }}
           >
-            MAZEN <span className="gradient-text">ELSAKA</span>
-          </motion.h1>
+            Elsaka
+          </span>
+          <span className="sr-only">Elsaka</span>
+        </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '1rem',
-              color: 'var(--text-secondary)',
-              maxWidth: 500,
-              lineHeight: 1.6,
-              marginBottom: '1.5rem',
-            }}
-          >
-            Web Developer & AI Engineer specializing in computer vision, neural networks, and fullstack architecture.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.9 }}
-            style={{ display: 'flex', gap: '1rem', pointerEvents: 'all' }}
-          >
-            <a href="#projects" className="btn btn-primary" style={{ cursor: 'pointer' }}>
-              View My Work
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-            </a>
-            <a href="#contact" className="btn btn-outline" style={{ cursor: 'pointer' }}>
-              Get in Touch
-            </a>
-          </motion.div>
-        </div>
-      </div>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.75rem',
+            color: 'var(--text-secondary)',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            marginTop: '1.25rem',
+          }}
+        >
+          {'31.2001\u00B0 N, 29.9187\u00B0 E \u2014 Alexandria, Egypt'}
+        </motion.p>
+      </motion.div>
 
       {/* ========== SCROLL INDICATOR ========== */}
       <motion.div
