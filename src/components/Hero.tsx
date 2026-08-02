@@ -1,6 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform, useScroll, useMotionTemplate } from 'framer-motion';
-import GhostCursor from './GhostCursor';
+import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion';
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -9,14 +8,6 @@ export default function Hero() {
   // Mouse tracking for parallax
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
-
-  // Mouse tracking for the spotlight (absolute pixels)
-  const spotlightX = useMotionValue(-1000);
-  const spotlightY = useMotionValue(-1000);
-  const smoothSpotlightX = useSpring(spotlightX, { damping: 30, stiffness: 200 });
-  const smoothSpotlightY = useSpring(spotlightY, { damping: 30, stiffness: 200 });
-
-  const maskImage = useMotionTemplate`radial-gradient(circle at ${smoothSpotlightX}px ${smoothSpotlightY}px, black 0%, transparent 350px)`;
 
   const smoothX = useSpring(mouseX, { damping: 25, stiffness: 150 });
   const smoothY = useSpring(mouseY, { damping: 25, stiffness: 150 });
@@ -43,20 +34,10 @@ export default function Hero() {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!windowSize.w) return;
-    
+
     // Normalized for parallax
     mouseX.set(e.clientX / windowSize.w);
     mouseY.set(e.clientY / windowSize.h);
-
-    // Absolute for spotlight
-    spotlightX.set(e.clientX);
-    spotlightY.set(e.clientY);
-  };
-
-  const handleMouseLeave = () => {
-    // Hide spotlight when mouse leaves
-    spotlightX.set(-1000);
-    spotlightY.set(-1000);
   };
 
   return (
@@ -64,7 +45,6 @@ export default function Hero() {
       ref={sectionRef}
       id="hero"
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       style={{
         position: 'relative',
         width: '100%',
@@ -74,7 +54,6 @@ export default function Hero() {
         alignItems: 'center',
         justifyContent: 'center',
         background: 'var(--bg-primary)',
-        cursor: 'none', // Hide cursor to emphasize the ghost effect
       }}
     >
       {/* ========== BASE PHOTO — full screen, zooms in on scroll ========== */}
@@ -101,42 +80,6 @@ export default function Hero() {
           }}
         />
       </motion.div>
-
-      {/* ========== MASK OVERLAY — The ghost spotlight reveal ========== */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 3,
-          WebkitMaskImage: maskImage,
-          maskImage: maskImage,
-          opacity: heroOpacity,
-          scale: heroScale,
-          pointerEvents: 'none',
-        }}
-      >
-        <img
-          src="/mask.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-          }}
-        />
-      </motion.div>
-
-      {/* ========== GHOST CURSOR EFFECT ========== */}
-      <GhostCursor
-        color="#10b981" // Match the emerald theme
-        trailLength={60}
-        inertia={0.6}
-        brightness={1.5}
-        bloomStrength={0.2}
-        zIndex={4}
-      />
 
       {/* ========== NAME — editorial type, bottom-left ========== */}
       <motion.div

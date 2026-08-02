@@ -33,7 +33,7 @@ export default function SeaSection() {
     let raf = 0;
     let width = 0;
     let height = 0;
-    const PX = 5; // pixel cube size
+    const PX = 3; // tiny pixel size — fine pixel-art look
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     const resize = () => {
@@ -47,11 +47,25 @@ export default function SeaSection() {
     resize();
     window.addEventListener('resize', resize);
 
-    // Mediterranean palette — deep to shallow
-    const deep = [16, 78, 139];     // deep sea blue
-    const mid = [14, 116, 144];     // teal
-    const shallow = [45, 168, 185]; // light teal
-    const foam = [224, 242, 245];   // white foam
+    // Mediterranean palette — many tones, deep to foam
+    const palette: [number, number, number][] = [
+      [8, 47, 94],     // deepest navy
+      [12, 62, 118],   // deep blue
+      [16, 78, 139],   // sea blue
+      [15, 98, 146],   // blue-teal
+      [14, 116, 144],  // teal
+      [24, 142, 165],  // bright teal
+      [45, 168, 185],  // light teal
+      [104, 200, 212], // pale aqua
+      [173, 226, 233], // near-foam
+      [235, 248, 250], // foam white
+    ];
+
+    // Static hash noise (per grid cell) — dithering without flicker
+    const hash = (cx: number, cy: number) => {
+      const s = Math.sin(cx * 127.1 + cy * 311.7) * 43758.5453;
+      return s - Math.floor(s);
+    };
 
     const start = performance.now();
 
@@ -60,57 +74,58 @@ export default function SeaSection() {
       ctx.clearRect(0, 0, width, height);
 
       const cols = Math.ceil(width / PX);
+      const rows = Math.ceil(height / PX);
 
-      // Tide: slow rise & fall of the whole sea level (المد والجزر)
-      const tide = Math.sin(t * 0.22) * height * 0.12;
-      const baseLevel = height * 0.45 + tide;
+      // Tide: gentle rise & fall of the sea level (المد والجزر)
+      const tide = Math.sin(t * 0.22) * height * 0.08;
+      // Sea occupies only the lower part of this small canvas
+      const baseLevel = height * 0.38 + tide;
 
       for (let c = 0; c <= cols; c++) {
         const x = c * PX;
 
-        // Layered waves, all phases move left -> right (x*f - t*s)
-        const w1 = Math.sin(x * 0.012 - t * 1.1) * 14;
-        const w2 = Math.sin(x * 0.028 - t * 1.7 + 2.1) * 8;
-        const w3 = Math.sin(x * 0.005 - t * 0.6 + 4.2) * 20;
-        const w4 = Math.sin(x * 0.05 - t * 2.4 + 1.3) * 3;
+        // Layered waves, small amplitudes, moving left -> right
+        const w1 = Math.sin(x * 0.014 - t * 1.1) * 6;
+        const w2 = Math.sin(x * 0.03 - t * 1.7 + 2.1) * 4;
+        const w3 = Math.sin(x * 0.006 - t * 0.6 + 4.2) * 8;
+        const w4 = Math.sin(x * 0.055 - t * 2.4 + 1.3) * 2;
 
         const surfaceY = baseLevel + w1 + w2 + w3 + w4;
         const surfaceRow = Math.floor(surfaceY / PX);
-        const rows = Math.ceil(height / PX);
 
         for (let r = surfaceRow; r <= rows; r++) {
           const y = r * PX;
           const depth = (y - surfaceY) / (height - surfaceY || 1); // 0 surface -> 1 bottom
+          const n = hash(c, r); // 0..1 static noise per cell
 
-          let col: number[];
+          let idx: number;
           let alpha: number;
 
           if (r === surfaceRow) {
-            // Foam crest — flickers with the wave motion
-            const sparkle = Math.sin(x * 0.09 + t * 3.2) > 0.35;
-            col = sparkle ? foam : shallow;
-            alpha = sparkle ? 0.95 : 0.85;
-          } else if (depth < 0.18) {
-            col = shallow;
-            alpha = 0.8;
-          } else if (depth < 0.55) {
-            col = mid;
-            alpha = 0.85;
-          } else {
-            col = deep;
-            alpha = 0.9;
-          }
-
-          // Occasional lighter pixel "glints" inside the water
-          const glint =
-            Math.sin(x * 0.07 + y * 0.11 + t * 1.4) > 0.96 && depth > 0.1;
-          if (glint) {
-            col = shallow;
+            // Foam crest — broken, flickering line
+            const sparkle = Math.sin(x * 0.09 + t * 3.2) + n * 0.8 > 0.5;
+            idx = sparkle ? 9 : 7;
             alpha = 0.95;
+          } else if (r === surfaceRow + 1) {
+            // Just under the crest — mix of foam remnants and aqua
+            idx = n > 0.75 ? 8 : 7;
+            alpha = 0.9;
+          } else {
+            // Map depth to palette band, then dither +/- with noise
+            const band = 6 - depth * 6; // 6 (light) -> 0 (deepest)
+            const dithered = band + (n - 0.5) * 2.4;
+            idx = Math.max(0, Math.min(7, Math.round(dithered)));
+            alpha = 0.88 + n * 0.1;
+
+            // Rare scattered glints — random cells shimmering with time
+            if (n > 0.965 && Math.sin(t * 1.6 + n * 40) > 0.3) {
+              idx = Math.min(8, idx + 2);
+            }
           }
 
+          const col = palette[idx];
           ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${alpha})`;
-          ctx.fillRect(x, y, PX - 1, PX - 1); // -1 keeps the pixel grid visible
+          ctx.fillRect(x, y, PX, PX);
         }
       }
 
@@ -283,7 +298,7 @@ export default function SeaSection() {
           right: 0,
           bottom: 0,
           width: '100%',
-          height: '38%',
+          height: '22%',
           zIndex: 3,
           display: 'block',
           pointerEvents: 'none',
