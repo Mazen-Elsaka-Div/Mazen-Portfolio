@@ -3,19 +3,26 @@ import { motion, useTransform, useScroll } from 'framer-motion';
 
 const NAME_FIRST = 'MAZEN';
 const NAME_LAST = 'ELSAKA';
+const SLICES = 6;
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Scroll-based zoom-in: as user scrolls, the photo zooms in and fades
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
-  const photoScale = useTransform(scrollYProgress, [0, 1], [1, 1.35]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.55, 0.9], [1, 1, 0]);
-  const textY = useTransform(scrollYProgress, [0, 0.6], [0, 60]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0]);
+
+  // Photo: zoom + blur + slight rise on scroll
+  const photoScale = useTransform(scrollYProgress, [0, 1], [1, 1.45]);
+  const photoBlur = useTransform(scrollYProgress, [0, 0.8], ['blur(0px)', 'blur(14px)']);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.6, 0.95], [1, 1, 0]);
+
+  // Name split: first name slides left, last name slides right
+  const firstX = useTransform(scrollYProgress, [0, 0.55], ['0%', '-60%']);
+  const lastX = useTransform(scrollYProgress, [0, 0.55], ['0%', '60%']);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
+  const overlineY = useTransform(scrollYProgress, [0, 0.4], [0, -40]);
 
   return (
     <section
@@ -29,11 +36,8 @@ export default function Hero() {
         background: 'var(--bg-primary)',
       }}
     >
-      {/* ========== FULL-SCREEN PHOTO with scroll zoom ========== */}
+      {/* ========== FULL-SCREEN PHOTO — Ken Burns drift + scroll zoom ========== */}
       <motion.div
-        initial={{ opacity: 0, scale: 1.06 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
         style={{
           position: 'absolute',
           inset: 0,
@@ -41,33 +45,90 @@ export default function Hero() {
           opacity: heroOpacity,
         }}
       >
-        <motion.img
-          src="/me.png"
-          alt="Mazen Elsaka"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            display: 'block',
-            scale: photoScale,
-          }}
-        />
+        <motion.div
+          style={{ width: '100%', height: '100%', scale: photoScale, filter: photoBlur }}
+        >
+          <motion.img
+            src="/me.png"
+            alt="Mazen Elsaka"
+            initial={{ scale: 1.12 }}
+            animate={{ scale: [1.12, 1.04, 1.1, 1.12] }}
+            transition={{
+              duration: 26,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              times: [0, 0.4, 0.75, 1],
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              display: 'block',
+              transformOrigin: '50% 35%',
+            }}
+          />
+        </motion.div>
       </motion.div>
 
-      {/* Subtle bottom gradient for legibility */}
+      {/* ========== CURTAIN SLICES — staggered reveal on load ========== */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 6,
+          display: 'flex',
+          pointerEvents: 'none',
+        }}
+      >
+        {Array.from({ length: SLICES }).map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ scaleY: 1 }}
+            animate={{ scaleY: 0 }}
+            transition={{
+              duration: 1.1,
+              delay: 0.15 + i * 0.09,
+              ease: [0.76, 0, 0.24, 1],
+            }}
+            style={{
+              flex: 1,
+              background: 'var(--bg-primary, #060c1c)',
+              transformOrigin: i % 2 === 0 ? 'top' : 'bottom',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Film grain overlay */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 2,
+          pointerEvents: 'none',
+          opacity: 0.5,
+          mixBlendMode: 'overlay',
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E\")",
+        }}
+      />
+
+      {/* Bottom gradient for legibility */}
       <motion.div
         style={{
           position: 'absolute',
           inset: 0,
           zIndex: 2,
           background:
-            'linear-gradient(to top, rgba(6,12,28,0.72) 0%, rgba(6,12,28,0.25) 28%, transparent 55%)',
+            'linear-gradient(to top, rgba(6,12,28,0.78) 0%, rgba(6,12,28,0.28) 30%, transparent 58%)',
           pointerEvents: 'none',
           opacity: heroOpacity,
         }}
       />
 
-      {/* ========== NAME — editorial, bottom-left ========== */}
+      {/* ========== NAME — masked line reveals, splits apart on scroll ========== */}
       <motion.div
         style={{
           position: 'absolute',
@@ -77,7 +138,6 @@ export default function Hero() {
           right: 0,
           padding: 'clamp(1.5rem, 4vw, 3.5rem)',
           pointerEvents: 'none',
-          y: textY,
           opacity: textOpacity,
         }}
       >
@@ -85,20 +145,25 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.5 }}
+          transition={{ duration: 0.9, delay: 1.15 }}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '0.75rem',
             marginBottom: '1.25rem',
+            y: overlineY,
           }}
         >
-          <span
+          <motion.span
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 1.3, ease: [0.22, 1, 0.36, 1] }}
             style={{
               width: '2.5rem',
               height: 1,
               background: 'rgba(255,255,255,0.55)',
               display: 'inline-block',
+              transformOrigin: 'left',
             }}
           />
           <span
@@ -115,7 +180,6 @@ export default function Hero() {
           </span>
         </motion.div>
 
-        {/* Name: staggered letters, thin + bold contrast */}
         <h1
           style={{
             fontFamily: 'var(--font-display)',
@@ -128,17 +192,22 @@ export default function Hero() {
             flexWrap: 'wrap',
             alignItems: 'baseline',
             gap: '0 1.5rem',
+            mixBlendMode: 'difference',
           }}
         >
-          <span aria-hidden="true" style={{ display: 'inline-flex' }}>
+          {/* First name — masked rise, drifts LEFT on scroll */}
+          <motion.span
+            aria-hidden="true"
+            style={{ display: 'inline-flex', overflow: 'hidden', x: firstX }}
+          >
             {NAME_FIRST.split('').map((ch, i) => (
               <motion.span
                 key={`f-${i}`}
-                initial={{ opacity: 0, y: '0.6em' }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ y: '110%', rotate: 6 }}
+                animate={{ y: 0, rotate: 0 }}
                 transition={{
-                  duration: 0.8,
-                  delay: 0.7 + i * 0.05,
+                  duration: 0.9,
+                  delay: 1.05 + i * 0.06,
                   ease: [0.22, 1, 0.36, 1],
                 }}
                 style={{ display: 'inline-block', fontWeight: 300 }}
@@ -146,16 +215,21 @@ export default function Hero() {
                 {ch}
               </motion.span>
             ))}
-          </span>
-          <span aria-hidden="true" style={{ display: 'inline-flex' }}>
+          </motion.span>
+
+          {/* Last name — masked rise, drifts RIGHT on scroll */}
+          <motion.span
+            aria-hidden="true"
+            style={{ display: 'inline-flex', overflow: 'hidden', x: lastX }}
+          >
             {NAME_LAST.split('').map((ch, i) => (
               <motion.span
                 key={`l-${i}`}
-                initial={{ opacity: 0, y: '0.6em' }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ y: '110%', rotate: -6 }}
+                animate={{ y: 0, rotate: 0 }}
                 transition={{
-                  duration: 0.8,
-                  delay: 1.0 + i * 0.05,
+                  duration: 0.9,
+                  delay: 1.3 + i * 0.06,
                   ease: [0.22, 1, 0.36, 1],
                 }}
                 style={{ display: 'inline-block', fontWeight: 800 }}
@@ -163,17 +237,27 @@ export default function Hero() {
                 {ch}
               </motion.span>
             ))}
-          </span>
-          <span className="sr-only" style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>
+          </motion.span>
+
+          <span
+            className="sr-only"
+            style={{
+              position: 'absolute',
+              width: 1,
+              height: 1,
+              overflow: 'hidden',
+              clip: 'rect(0 0 0 0)',
+            }}
+          >
             Mazen Elsaka
           </span>
         </h1>
 
-        {/* Role line */}
+        {/* Role line — typewriter-style mask sweep */}
         <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1.5 }}
+          initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }}
+          animate={{ clipPath: 'inset(0 0% 0 0)' }}
+          transition={{ duration: 1.4, delay: 2.0, ease: [0.22, 1, 0.36, 1] }}
           style={{
             fontFamily: 'var(--font-sans)',
             fontSize: 'clamp(0.9rem, 1.4vw, 1.05rem)',
@@ -193,7 +277,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
+        transition={{ delay: 2.6 }}
         style={{
           position: 'absolute',
           bottom: '1.5rem',
@@ -219,9 +303,9 @@ export default function Hero() {
           Scroll
         </span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.5)' }}
+          animate={{ scaleY: [0, 1, 0], transformOrigin: ['top', 'top', 'bottom'] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ width: 1, height: 40, background: 'rgba(255,255,255,0.6)' }}
         />
       </motion.div>
     </section>
