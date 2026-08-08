@@ -202,38 +202,41 @@ export default function Hero() {
                 display: 'block',
               }}
             >
-              {/* Pen-writing mask — reveals the signature left to right */}
-              <defs>
-                <mask id="sig-reveal">
-                  <motion.rect
-                    x="0"
-                    y="0"
-                    height="200"
-                    fill="#fff"
-                    initial={{ width: 0 }}
-                    animate={{ width: 720 }}
-                    transition={{ duration: 2.8, delay: 1.15, ease: 'easeInOut' }}
-                  />
-                </mask>
-              </defs>
-
-              {/* Thin stroke signature — no fill, stays light */}
-              <text
+              {/* Stroke pass — draws the signature */}
+              <motion.text
                 x="10"
                 y="140"
                 fill="transparent"
                 stroke="#fff"
-                strokeWidth="1.1"
+                strokeWidth="1.6"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                mask="url(#sig-reveal)"
+                initial={{ strokeDasharray: 900, strokeDashoffset: 900, opacity: 1 }}
+                animate={{ strokeDashoffset: 0 }}
+                transition={{ duration: 3.2, delay: 1.15, ease: 'easeInOut' }}
                 style={{
                   fontFamily: "'Great Vibes', cursive",
                   fontSize: '108px',
                 }}
               >
                 Mazen Elsaka
-              </text>
+              </motion.text>
+
+              {/* Ink fill pass — fades in behind the stroke as it completes */}
+              <motion.text
+                x="10"
+                y="140"
+                fill="#fff"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.6, delay: 3.2, ease: 'easeOut' }}
+                style={{
+                  fontFamily: "'Great Vibes', cursive",
+                  fontSize: '108px',
+                }}
+              >
+                Mazen Elsaka
+              </motion.text>
 
               {/* Signature underline flourish */}
               <motion.path
@@ -244,7 +247,7 @@ export default function Hero() {
                 strokeLinecap="round"
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
-                transition={{ duration: 0.9, delay: 3.7, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.9, delay: 4.0, ease: [0.22, 1, 0.36, 1] }}
               />
             </svg>
           </motion.div>
