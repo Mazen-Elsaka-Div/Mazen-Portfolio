@@ -1,8 +1,6 @@
 import { useRef } from 'react';
 import { motion, useTransform, useScroll } from 'framer-motion';
 
-const NAME_FIRST = 'MAZEN';
-const NAME_LAST = 'ELSAKA';
 const SLICES = 6;
 
 export default function Hero() {
@@ -18,9 +16,8 @@ export default function Hero() {
   const photoBlur = useTransform(scrollYProgress, [0, 0.8], ['blur(0px)', 'blur(14px)']);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.6, 0.95], [1, 1, 0]);
 
-  // Name split: first name slides left, last name slides right
-  const firstX = useTransform(scrollYProgress, [0, 0.55], ['0%', '-60%']);
-  const lastX = useTransform(scrollYProgress, [0, 0.55], ['0%', '60%']);
+  // Signature drifts left and fades on scroll
+  const firstX = useTransform(scrollYProgress, [0, 0.55], ['0%', '-30%']);
   const textOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
   const overlineY = useTransform(scrollYProgress, [0, 0.4], [0, -40]);
 
@@ -180,65 +177,7 @@ export default function Hero() {
           </span>
         </motion.div>
 
-        <h1
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'clamp(2.75rem, 8vw, 7rem)',
-            lineHeight: 0.95,
-            letterSpacing: '-0.02em',
-            color: '#fff',
-            margin: 0,
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'baseline',
-            gap: '0 1.5rem',
-            mixBlendMode: 'difference',
-          }}
-        >
-          {/* First name — masked rise, drifts LEFT on scroll */}
-          <motion.span
-            aria-hidden="true"
-            style={{ display: 'inline-flex', overflow: 'hidden', x: firstX }}
-          >
-            {NAME_FIRST.split('').map((ch, i) => (
-              <motion.span
-                key={`f-${i}`}
-                initial={{ y: '110%', rotate: 6 }}
-                animate={{ y: 0, rotate: 0 }}
-                transition={{
-                  duration: 0.9,
-                  delay: 1.05 + i * 0.06,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                style={{ display: 'inline-block', fontWeight: 300 }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-          </motion.span>
-
-          {/* Last name — masked rise, drifts RIGHT on scroll */}
-          <motion.span
-            aria-hidden="true"
-            style={{ display: 'inline-flex', overflow: 'hidden', x: lastX }}
-          >
-            {NAME_LAST.split('').map((ch, i) => (
-              <motion.span
-                key={`l-${i}`}
-                initial={{ y: '110%', rotate: -6 }}
-                animate={{ y: 0, rotate: 0 }}
-                transition={{
-                  duration: 0.9,
-                  delay: 1.3 + i * 0.06,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                style={{ display: 'inline-block', fontWeight: 800 }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-          </motion.span>
-
+        <h1 style={{ margin: 0, position: 'relative' }}>
           <span
             className="sr-only"
             style={{
@@ -251,13 +190,74 @@ export default function Hero() {
           >
             Mazen Elsaka
           </span>
+
+          {/* Handwritten signature — live stroke draw, then ink fill */}
+          <motion.div aria-hidden="true" style={{ x: firstX }}>
+            <svg
+              viewBox="0 0 720 200"
+              style={{
+                width: 'clamp(300px, 46vw, 640px)',
+                height: 'auto',
+                overflow: 'visible',
+                display: 'block',
+              }}
+            >
+              {/* Stroke pass — draws the signature */}
+              <motion.text
+                x="10"
+                y="140"
+                fill="transparent"
+                stroke="#fff"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ strokeDasharray: 900, strokeDashoffset: 900, opacity: 1 }}
+                animate={{ strokeDashoffset: 0 }}
+                transition={{ duration: 3.2, delay: 1.15, ease: 'easeInOut' }}
+                style={{
+                  fontFamily: "'Great Vibes', cursive",
+                  fontSize: '108px',
+                }}
+              >
+                Mazen Elsaka
+              </motion.text>
+
+              {/* Ink fill pass — fades in behind the stroke as it completes */}
+              <motion.text
+                x="10"
+                y="140"
+                fill="#fff"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.6, delay: 3.2, ease: 'easeOut' }}
+                style={{
+                  fontFamily: "'Great Vibes', cursive",
+                  fontSize: '108px',
+                }}
+              >
+                Mazen Elsaka
+              </motion.text>
+
+              {/* Signature underline flourish */}
+              <motion.path
+                d="M 30 168 C 180 186, 420 158, 560 170"
+                fill="none"
+                stroke="rgba(255,255,255,0.65)"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.9, delay: 4.0, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </svg>
+          </motion.div>
         </h1>
 
-        {/* Role line — typewriter-style mask sweep */}
+        {/* Role line ��� typewriter-style mask sweep */}
         <motion.p
           initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }}
           animate={{ clipPath: 'inset(0 0% 0 0)' }}
-          transition={{ duration: 1.4, delay: 2.0, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1.4, delay: 3.6, ease: [0.22, 1, 0.36, 1] }}
           style={{
             fontFamily: 'var(--font-sans)',
             fontSize: 'clamp(0.9rem, 1.4vw, 1.05rem)',
@@ -277,7 +277,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2.6 }}
+        transition={{ delay: 4.4 }}
         style={{
           position: 'absolute',
           bottom: '1.5rem',
