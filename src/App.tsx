@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
-import SeaSection from './components/SeaSection';
+import OceanSection from './components/OceanSection';
 import Timeline from './components/Timeline';
 import EventsGrid from './components/EventsGrid';
 import ProjectGraph from './components/ProjectGraph';
@@ -40,7 +40,7 @@ export default function App() {
             <Navigation />
             <main>
               <Hero />
-              <SeaSection />
+              <OceanSection />
               <Timeline />
               <EventsGrid />
               <ProjectGraph />
