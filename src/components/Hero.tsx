@@ -39,6 +39,7 @@ export default function Hero() {
           inset: 0,
           zIndex: 1,
           opacity: heroOpacity,
+          scale: heroScale,
         }}
       >
         <motion.img
