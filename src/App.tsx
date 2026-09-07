@@ -1,9 +1,9 @@
-import Hero from './components/Hero';
+import IntroAnimation from './components/ui/scroll-morph-hero';
 
 export default function App() {
   return (
     <main>
-      <Hero />
+      <IntroAnimation />
     </main>
   );
 }
