@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 
 export default function Hero() {
   return (
@@ -20,12 +21,13 @@ export default function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <p className="intro-kicker">Alexandria, Egypt</p>
-        <h1 id="intro-title">Mazen Elsaka</h1>
-        <p className="intro-description">
-          Web Developer &amp; AI Engineer building thoughtful digital experiences,
-          computer vision systems, and full-stack products.
-        </p>
+        <h1 id="intro-title" aria-label="Mazen Elsaka">
+          {'Mazen Elsaka'.split('').map((letter, index) => (
+            <span className="intro-letter" style={{ '--letter-index': index } as CSSProperties} key={`${letter}-${index}`}>
+              {letter === ' ' ? '\u00a0' : letter}
+            </span>
+          ))}
+        </h1>
       </motion.div>
     </section>
   );
