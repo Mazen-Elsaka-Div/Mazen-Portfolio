@@ -1,242 +1,43 @@
-/* ============================================================
-   MAZEN ELSAKA PORTFOLIO — Light Theme Design System
-   ============================================================ */
-
-/* --- Reset & Base --- */
-*, *::before, *::after {
+* {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 :root {
-  /* Colors - Light Theme */
-  --bg-primary: #fcfcfc;
-  --bg-secondary: #f4f5f7;
-  --bg-card: #ffffff;
-  --bg-card-hover: #fafafa;
-  --bg-glass: rgba(255, 255, 255, 0.7);
-  --bg-glass-hover: rgba(255, 255, 255, 0.9);
-
-  /* Accent colors (sayed.bio inspired emerald) */
-  --emerald: #10b981;
-  --emerald-dim: #059669;
-  --indigo: #6366f1;
-  --violet: #8b5cf6;
-  --pink: #ec4899;
-  --code-green: #10b981;
-  --ai-blue: #3b82f6;
-
-  /* Text - Dark for light theme */
-  --text-primary: #111827;
-  --text-secondary: #4b5563;
-  --text-muted: #9ca3af;
-  --text-code: #059669;
-
-  /* Borders */
-  --border: rgba(0, 0, 0, 0.08);
-  --border-hover: rgba(0, 0, 0, 0.15);
-  --border-accent: rgba(16, 185, 129, 0.3);
-
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, var(--emerald), var(--ai-blue));
-  --gradient-glow: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.15));
-
-  /* Shadows for light theme */
-  --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.15);
-  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.08), 0 0 20px rgba(16, 185, 129, 0.05);
-
-  /* Spacing */
-  --section-padding: 7rem 1.5rem;
-  --container-max: 1200px;
-
-  /* Fonts */
+  --bg-primary: #0b1220;
+  --text-primary: #f6f7fb;
+  --text-secondary: rgba(246, 247, 251, 0.72);
+  --text-muted: rgba(246, 247, 251, 0.58);
+  --accent: #9fd7ff;
+  --overlay: rgba(5, 12, 26, 0.5);
   --font-display: 'Space Grotesk', sans-serif;
-  --font-sans: 'Inter', -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
 
-  /* Timing */
-  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
 }
 
 html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
+  background: var(--bg-primary);
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--bg-primary);
+  background: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.7;
-  overflow-x: hidden;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Selection --- */
+button,
+a {
+  font: inherit;
+}
+
 ::selection {
-  background: rgba(16, 185, 129, 0.2);
-  color: var(--text-primary);
-}
-
-/* --- Custom Scrollbar --- */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-primary); }
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-
-/* --- Typography Utilities --- */
-.font-display { font-family: var(--font-display); }
-.font-mono { font-family: var(--font-mono); }
-.gradient-text {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.code-text { color: var(--code-green); font-family: var(--font-mono); }
-
-/* --- Container & Layout --- */
-.container {
-  max-width: var(--container-max);
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  width: 100%;
-  position: relative;
-  z-index: 10;
-}
-
-.section {
-  padding: var(--section-padding);
-  position: relative;
-}
-
-/* --- Backgrounds (Sayed.bio style vertical lines) --- */
-.vertical-lines {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  display: flex;
-  justify-content: space-evenly;
-}
-.vertical-lines div {
-  width: 1px;
-  height: 100vh;
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.03) 15%, rgba(0,0,0,0.03) 85%, rgba(0,0,0,0) 100%);
-}
-
-.bg-pattern {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image: radial-gradient(circle at 2px 2px, rgba(0,0,0,0.03) 1px, transparent 0);
-  background-size: 32px 32px;
-}
-
-/* --- Glass Cards --- */
-.glass-panel {
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  transition: var(--transition);
-  box-shadow: var(--shadow-card);
-}
-.glass-panel:hover {
-  background: var(--bg-glass-hover);
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-card-hover);
-}
-
-/* --- Buttons --- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.75rem;
-  border-radius: 8px;
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 0.95rem;
-  cursor: pointer;
-  border: none;
-  transition: var(--transition);
-  text-decoration: none;
-  position: relative;
-  overflow: hidden;
-  letter-spacing: 0.02em;
-}
-.btn-primary {
-  background: var(--text-primary);
-  color: #fff;
-}
-.btn-primary:hover {
-  background: var(--emerald);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
-}
-.btn-outline {
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-hover);
-}
-.btn-outline:hover {
-  background: rgba(0,0,0,0.02);
-  border-color: var(--text-primary);
-  transform: translateY(-2px);
-}
-
-/* --- Section Headers --- */
-.section-header {
-  margin-bottom: 4rem;
-}
-.section-label {
-  font-family: var(--font-sans);
-  font-size: 0.75rem;
-  color: var(--emerald);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-weight: 600;
-}
-.section-label::before {
-  content: '';
-  height: 1px;
-  width: 3rem;
-  background: var(--emerald);
-  opacity: 0.5;
-}
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
-}
-.section-desc {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  max-width: 600px;
-}
-
-/* --- Utilities --- */
-.glow-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.15;
+  background: var(--accent);
+  color: var(--bg-primary);
 }
